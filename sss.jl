@@ -69,11 +69,6 @@ Base.getindex(p::BBoxPoint, n::Int) = n == 1 ? p.x : n == 2 ? p.y : n == 3 ? p.z
 Base.size(p::BBoxPoint) = (4,)
 Base.size(p::BBoxPoint, n) = n == 1 ? 4 : throw("Invalid dimension.")
 
-# Base.getindex(p::BBoxPoint, n::Int) = n == 1 ? p.x : n == 2 ? p.y : n == 3 ? p.z : throw("BBoxPoint indexing error.")
-# Base.size(p::BBoxPoint) = (3,)
-# Base.size(p::BBoxPoint, n) = n == 1 ? 3 : throw("Invalid dimension.")
-
-
 # Note: Due to the PointN types, this now assumes all coordinates are of the same type.
 clampadd3{Q}(p::Q, r::Int) = BBoxPoint(min(p[1] + r, typemax(p[1])), min(p[2] + r, typemax(p[2])), min(p[3] + r, typemax(p[3])), 0)
 clampsub3{Q}(p::Q, r::Int) = BBoxPoint(max(p[1] - r, typemin(p[1])), max(p[2] - r, typemin(p[2])), max(p[3] - r, typemin(p[3])), 0)
@@ -91,14 +86,7 @@ immutable Result{P, Q}
 	bbox_max::BBoxPoint # centered on the query point (with side length 2r).
 	function Result(r_sq::Uint, point::P, q::Q)
 		r = iceil(sqrt(r_sq))
-		s = size(q, 1)
-		# if s == 3
-			new(r_sq, point, clampsub3(q, r), clampadd3(q, r))
-		# elseif s == 4
-			# new(r_sq, point, clampsub4(q, r), clampadd4(q, r))
-		# else
-			# error("Unsupported query point dimension: $s")
-		# end
+		new(r_sq, point, clampsub3(q, r), clampadd3(q, r))
 	end
 end
 
