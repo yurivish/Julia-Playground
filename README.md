@@ -1,7 +1,7 @@
 Julia-Playground
 ================
 
-A collection of various playthings and utilities for graphical explorations in Julia and beyond.
+A collection of various playthings and utilities for graphical explorations in Julia.
 
 Currently contains:
   - An implementation of a [Treap](http://en.wikipedia.org/wiki/Treap), which is a randomized self-balancing binary search tree data structure.
