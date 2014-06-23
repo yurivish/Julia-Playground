@@ -12,8 +12,6 @@ Base.show{T <: Integer}(io::IO, p::Rgb{T}) = show(io, "Rgb{$T}($(p.r + 0), $(p.g
 
 Base.sum(p::Rgb) = p.r + p.g + p.b
 
-
-# Correct version
 Base.start(p::Rgb) = 1
 Base.next{T}(p::Rgb{T}, state::Int) =
     state == 1 ? (p.r, 2) :
@@ -23,19 +21,6 @@ Base.done(p::Rgb, state::Int) = state == 4
 Base.getindex{T}(p::Rgb{T}, n::Int) = n == 1 ? p.r : n == 2 ? p.g : n == 3 ? p.b : throw("Color indexing error.")
 Base.size(p::Rgb) = (3,)
 Base.size(p::Rgb, n) = n == 1 ? 3 : throw("Invalid dimension.")
-
-# Avg color: Hacked version with p[4] == 0
-# Base.start(p::Rgb) = 1
-# Base.next{T}(p::Rgb{T}, state::Int) =
-#     state == 1 ? (p.r, 2) :
-#     state == 2 ? (p.g, 3) :
-#     state == 3 ? (p.b, 4) :
-#     state == 4 ? (zero(T), 5) : throw("Iteration state error.")
-# Base.done(p::Rgb, state::Int) = state == 5
-# Base.getindex{T}(p::Rgb{T}, n::Int) = n == 1 ? p.r : n == 2 ? p.g : n == 3 ? p.b : n == 4 ? zero(T) : throw("Color indexing error.")
-# Base.size(p::Rgb) = (4,)
-# Base.size(p::Rgb, n) = n == 1 ? 4 : throw("Invalid dimension.")
-
 
 
 Base.rand{T}(::Type{Rgb{T}}) = Rgb{T}(rand(T), rand(T), rand(T))
@@ -97,4 +82,3 @@ function hue(c::Pixel)
     # HSL(h,s,l)
     return h
 end
-
