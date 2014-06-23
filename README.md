@@ -1,7 +1,8 @@
 Julia-Playground
 ================
 
-A collection of various playthings and utilities for graphical explorations in Julia. A note to the interested visitor: While some of the files here are complete, presentable and fully documented, others are still under development.
+A collection of various playthings and utilities for graphical explorations in Julia.<br/>
+A note to the interested visitor: While some of the files here are complete, presentable and fully documented, others are still under development.
 
 Currently contains:
   - A set of OpenGL tools for operations like creating shaders and checking for errors.
