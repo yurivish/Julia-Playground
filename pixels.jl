@@ -7,8 +7,6 @@ include("bag.jl")
 include("treap.jl")
 include("sss.jl")
 
-# 24 bits for color, 24 bits for xy (4096 each), 
-
 immutable NeighborStats
     n::Int
     avg::Rgb{Uint8}
@@ -18,7 +16,6 @@ immutable NeighborStats
     NeighborStats() = new(0, Rgb{Uint8}(), 0, 0)
 end
 
-# NOTE: We could stuff x, y, filled, bagindex into an int, and use an iterator for neighbors.
 type Vertex
     x::Int
     y::Int
@@ -136,7 +133,7 @@ function fill!(pixels, frontier, vertex, color, outer::Bool)
     end
 end
 
-# Calculate average without overflow: (R - L)/2 + L
+# TODO: To calculate average without overflow: (R - L)/2 + L
 function stats!(vertex)
     n = zero(vertex.stats.n)
     avg = var = Rgb{Float64}() #zero(vertex.stats.avg)
