@@ -30,12 +30,8 @@ function display(width, height, f; title="Julia")
         GLFW.WindowHint(GLFW.OPENGL_FORWARD_COMPAT, GL_TRUE)
     end
 
-    retinascale = 2
-    rwidth, rheight = width, height
-    # rwidth *= retinascale
-    # rheight *= retinascale
-    # width = div(width, retinascale)
-    # height = div(height, retinascale)
+    # TODO: http://www.glfw.org/docs/latest/window.html#window_fbsize
+    retinascale = 1.0
     
     # Create a window with an OpenGL context
     window = GLFW.CreateWindow(width, height, title)
