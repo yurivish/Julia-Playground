@@ -6,10 +6,10 @@
 
 lessmsb(x, y) = x < y && x < (x $ y)
 function shuffdim(p, q)
-	# Return the dimension with the largest most significant bit, which 
+	# Return the dimension with the largest most significant bit, which
 	# decides which of p and q comes first in shuffle order.
 	# Break ties in favor of the lower-index dimension (x, then y, then z)
-	# because that's the order in which bits are conceptually interleaved.
+	# since that's the order in which the bits are conceptually interleaved.
 	k = 1
 	kxor = p[k] $ q[k]
 	for i in 2:min(size(p, 1), size(q, 1)) # Workaround for wonky bbox point stuff.
