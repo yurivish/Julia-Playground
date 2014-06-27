@@ -4,6 +4,7 @@ Julia-Playground
 A collection of various playthings and utilities for graphical explorations in Julia. This repository is a working collection of tools I've written during my own explorations. While some of the files here are complete, presentable, and fully documented, others are still raw and under development.
 
 Currently contains:
+  - A little generative art trinket, currently non-interactive (pixels.jl)
   - An implementation of a [Treap](http://en.wikipedia.org/wiki/Treap), which is a randomized self-balancing binary search tree data structure.
   - An image encoder for the [PPM](http://netpbm.sourceforge.net/doc/ppm.html) image format.
   - A set of OpenGL tools for operations like creating shaders and checking for errors.
