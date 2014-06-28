@@ -1,0 +1,17 @@
+Interesting parameters:
+	- Nearest-neighbor epsilon
+	- Seed points
+	- Distance metric
+	- Color source
+	- Array order (or, more generally, sampling method)
+	- Interactive control of colors, seeds, placement
+
+Things to visualize
+	- If it's an image, see the colors in the image and animate their movement to the canvas
+	- See the points on the frontier in 3d (rgb)
+
+Ideas
+	- When placing points onto the canvas, color them by the time at which they were placed, or the size of the frontier as they're being placed
+
+
+
