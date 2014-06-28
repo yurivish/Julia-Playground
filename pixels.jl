@@ -14,9 +14,16 @@ s = ArgParseSettings()
         help = "filename for image to use as input"
         arg_type = String
         default = "images/Bachalpseeflowers.jpg"
+    "--type", "-t"
+        help = "function type to use: min, avg, or evo"
+        arg_type = String
+        default = "min"
 end
 parsed_args = parse_args(ARGS, s)
 const target_file = parsed_args["file"]
+
+const fntype = symbol(parsed_args["type"])
+(fntype in [:min,:avg,:evo]) || error("Invalid function type provide. Got $fntype; expected min, avg, or evo.")
 
 immutable NeighborStats
     n::Int
@@ -268,9 +275,6 @@ function placemin(pixels)
     end
     pixels
 end
-
-# :min / :avg / :evo
-fntype = :min
 
 fn = fntype == :min ? placemin :
      fntype == :avg ? placeavg :
