@@ -107,8 +107,7 @@ end
 
 function fill!(pixels, frontier, vertex, color, outer::Bool)
     # TODO: Don't pass pixels in.
-    v = clamp(int(255 * length(frontier) / 50000), 0, 255)
-    pixels[vertex.y, vertex.x] = GLPixel(v, v, v)#color
+    pixels[vertex.y, vertex.x] = color
 
     vertex.color = color
     vertex.filled = true
