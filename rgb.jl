@@ -56,7 +56,6 @@ function hue(c::Pixel)
     l = (c_max - c_min) / 2
 
     if c_max == c_min
-        # return HSL(0.0, 0.0, l)
         return 0.0
     end
 
@@ -79,6 +78,5 @@ function hue(c::Pixel)
         h -= 360
     end
 
-    # HSL(h,s,l)
     return h
 end

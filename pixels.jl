@@ -301,18 +301,7 @@ else
     Base.size(p::Rgb, n) = n == 1 ? 4 : throw("Invalid dimension.")
 end
 
-# placemin(zeros(GLPixel, 1440, 900))
-# # @time placemin(zeros(GLPixel, 200, 200))
-# @time placemin(zeros(GLPixel, 100, 100))
-# # @time placemin(zeros(GLPixel, 125, 125))
-# @time placemin(zeros(GLPixel, 150, 150))
-# # @time placemin(zeros(GLPixel, 175, 175))
-# @time placemin(zeros(GLPixel, 200, 200))
-# @time placemin(zeros(GLPixel, 500, 500))
-
-# display(2560, 1440 - 22, fn; title="Pixels")
-# display(1440, 900 - 22, fn; title="Pixels")
+# placemin(zeros(GLPixel, 100, 100))
 display(1000, 750, fn; title="Pixels")
-# display(800, 538, fn; title="Pixels")
 
 end
