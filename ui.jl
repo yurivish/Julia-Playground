@@ -10,15 +10,9 @@ type MouseState
     pressed::Bool
 end
 
-function pixelgen(pixels)
-    for i in 1:length(pixels)
-        pixels[i] = GLPixel(i, i * 3, i * 7)
-        i % 1000 == 0 && produce(pixels)
-    end
-    pixels
-end
-
 function display(width, height, f; title="Julia")
+    # Width and height are in screen coordinates, not pixels
+
     GLFW.Init()
      
     @osx_only begin
@@ -30,9 +24,6 @@ function display(width, height, f; title="Julia")
         GLFW.WindowHint(GLFW.OPENGL_FORWARD_COMPAT, GL_TRUE)
     end
 
-    # TODO: http://www.glfw.org/docs/latest/window.html#window_fbsize
-    retinascale = 1.0
-    
     # Create a window with an OpenGL context
     window = GLFW.CreateWindow(width, height, title)
      
@@ -65,6 +56,7 @@ function display(width, height, f; title="Julia")
 
     glCheckError("initializing texture")
 
+
     # Create and initialize shaders
     program = begin
         const vsh = """
@@ -79,19 +71,13 @@ function display(width, height, f; title="Julia")
         const fsh = """
             #version 330
             out vec4 outColor;
-            uniform vec2 screenDims;
+            uniform vec2 screenDimsInPixels;
             uniform sampler2D tex;
             uniform float zoom;
             
             void main() {
-                vec2 pos = gl_FragCoord.xy / screenDims;
-                $(
-                    if retinascale > 1.0
-                        "vec2 zeroToCenter = vec2(0.0, 0.0);" # A hack for retina screens
-                    else
-                        "vec2 zeroToCenter = vec2(0.5, 0.5);"
-                    end
-                )
+                vec2 pos = gl_FragCoord.xy / screenDimsInPixels;
+                vec2 zeroToCenter = vec2(0.5, 0.5);
                 outColor = texture(tex, (pos - zeroToCenter) * zoom + zeroToCenter);
             }
         """
@@ -104,10 +90,10 @@ function display(width, height, f; title="Julia")
 
         glUseProgram(program)
 
-        # TODO: How do we ensure these values are GLfloats?
-        screenDimsUniform = glGetUniformLocation(program, "screenDims")
-        @assert screenDimsUniform > -1
-        glUniform2f(screenDimsUniform, float(width), float(height))
+        screenDimsInPixelsUniform = glGetUniformLocation(program, "screenDimsInPixels")
+        @assert screenDimsInPixelsUniform > -1
+        (pixelwidth::Float64, pixelheight::Float64) = GLFW.GetFramebufferSize(window)
+        glUniform2f(screenDimsInPixelsUniform, pixelwidth, pixelheight)
 
         textureUniform = glGetUniformLocation(program, "tex")
         @assert textureUniform > -1
@@ -138,7 +124,6 @@ function display(width, height, f; title="Julia")
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
     end
 
-    global generator
     regenerate(f, args...) = global generator = @task f(zeros(GLPixel, width, height), args...)
     regenerate(f)
 
@@ -150,10 +135,12 @@ function display(width, height, f; title="Julia")
         end
     end)
 
+    # For now, disable garbage collection due to the inefficiency of the pixel-placing code
     gc_disable()
 
+    zoom::GLfloat = 1.0
+
     # Event loop
-    zoom::GLfloat = 1.0 / retinascale
     while !GLFW.WindowShouldClose(window)   
         # Clear the screen
         glClearColor(0.0, 0.0, 0.0, 1.0)
@@ -168,6 +155,12 @@ function display(width, height, f; title="Julia")
         end
 
         glUniform1f(zoomUniform, zoom)
+
+        # The pixel dimensions of the window may change here, e.g.
+        # if the window is dragged from a high-dpi monitor to a low-dpi one.
+        (pixelwidth, pixelheight) = GLFW.GetFramebufferSize(window)
+        glUniform2f(screenDimsInPixelsUniform, pixelwidth, pixelheight)
+
         drawtexture()
 
         # Swap front and back buffers
@@ -176,6 +169,7 @@ function display(width, height, f; title="Julia")
         # Poll for and process events
         GLFW.PollEvents()
     end
+
     gc_enable()
     gc()
 
