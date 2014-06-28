@@ -1,11 +1,22 @@
 module Pixels
 
 using Images
+using ArgParse
 
 include("ui.jl")
 include("bag.jl")
 include("treap.jl")
 include("sss.jl")
+
+s = ArgParseSettings()
+@add_arg_table s begin
+    "--file", "-f"
+        help = "filename for image to use as input"
+        arg_type = String
+        default = "images/Bachalpseeflowers.jpg"
+end
+parsed_args = parse_args(ARGS, s)
+const target_file = parsed_args["file"]
 
 immutable NeighborStats
     n::Int
@@ -220,9 +231,8 @@ function placeavg(pixels)
     (height, width) = size(pixels)
     canvas = Canvas(width, height, Treap{Vertex}())
     # colors = gencolors(length(pixels))
-    colors = gencolors("images/Bachalpseeflowers.jpg")
+    colors = gencolors(target_file)
     # colors = gencolors(1000)
-    # colors = gencolors("Bachalpseeflowers.jpg")
     i = 1
     fill!(pixels, frontier(canvas), canvas[div(height, 2), div(width, 2)], colors[i += 1], true)
     while i < length(pixels)
@@ -241,7 +251,7 @@ function placemin(pixels)
     canvas = Canvas(width, height, Treap{Vertex}())
     # colors = gencolors(length(pixels))
     # colors = gencolors("Bachalpseeflowers.jpg")
-    colors = gencolors("images/Bachalpseeflowers.jpg")
+    colors = gencolors(target_file)
     i = 1
 
     fill!(pixels, frontier(canvas), canvas[div(height, 2), div(width, 2)], colors[i += 1], false)
