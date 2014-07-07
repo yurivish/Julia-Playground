@@ -1,3 +1,16 @@
+# http://www.opengl.org/wiki/Program_Introspection#Uniforms_and_blocks
+
+# immutable ShaderUniform
+#     function new(program, name)
+#         uniform = glGetUniformLocation(program, name)
+#         @assert uniform > -1
+#     end
+# end
+
+# tex = ShaderUniform("tex")
+# set!(tex, 4) # Should assert the value is of the wrong type
+# get(tex)
+
 function glGenOne(glGenFn)
     id::Ptr{GLuint} = GLuint[0]
     glGenFn(1, id)

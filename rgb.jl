@@ -32,7 +32,6 @@ function sqdiff(x::Rgb, y::Rgb)
 end
 
 typealias Pixel Rgb{Uint8}
-typealias GLPixel Rgb{Uint8} # BUG: Should be Rgb{GLubyte}, but this causes odd dependency chains
 
 -{X, Y}(x::Rgb{X}, y::Rgb{Y}) = Rgb{promote_type(X, Y)}(x.r - y.r, x.g - y.g, x.b - y.b)
 +{X, Y}(x::Rgb{X}, y::Rgb{Y}) = Rgb{promote_type(X, Y)}(x.r + y.r, x.g + y.g, x.b + y.b)

@@ -4,6 +4,8 @@ using ModernGL
 include("gltools.jl")
 include("rgb.jl")
 
+typealias GLPixel Rgb{Uint8}
+
 type MouseState
     x::Float64
     y::Float64
@@ -11,13 +13,11 @@ type MouseState
 end
 
 function display(width, height, f; title="Julia")
-    # Width and height are in screen coordinates, not pixels
-
     GLFW.Init()
      
+    # OS X-specific GLFW hints to specify the correct 
+    # version of OpenGL at context creation time
     @osx_only begin
-        # OS X-specific GLFW hints to specify the correct 
-        # version of OpenGL at context creation time
         GLFW.WindowHint(GLFW.CONTEXT_VERSION_MAJOR, 3)
         GLFW.WindowHint(GLFW.CONTEXT_VERSION_MINOR, 2)
         GLFW.WindowHint(GLFW.OPENGL_PROFILE, GLFW.OPENGL_CORE_PROFILE)
@@ -47,7 +47,7 @@ function display(width, height, f; title="Julia")
     glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW)
     glCheckError("setting buffer data")
 
-    # Initialize a texture for color data
+    # Initialize a texture for color data, allowing magnification and minification
     tex = glGenTexture()
     glBindTexture(GL_TEXTURE_2D, tex)
     glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8, width, height)
@@ -149,7 +149,7 @@ function display(width, height, f; title="Julia")
             mx = clamp(mx, 0, width) / width
             my = clamp(my, 0, height) / height
             pressed = GLFW.GetMouseButton(window, GLFW.MOUSE_BUTTON_LEFT) == GLFW.PRESS
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, consume(generator, MouseState(mx, my, pressed)))
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, consume(generator))
         end
 
         glUniform1f(zoomUniform, zoom)

@@ -215,7 +215,8 @@ end
 
 function gencolors(imgpath::String)
     colors = shuffle!(loadimage(imgpath))
-    sort!(colors, alg=QuickSort, lt=(p::Pixel, q::Pixel) -> hue(p) < hue(q))
+    # sort!(colors, alg=QuickSort, lt=(p::Pixel, q::Pixel) -> hue(p) < hue(q))
+    sort!(colors, rev=true, alg=QuickSort, lt=(p::Pixel, q::Pixel) -> p.r < q.r && p.g < q.g && p.b < q.b)
     colors
 end
 
