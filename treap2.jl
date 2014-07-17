@@ -2,7 +2,7 @@ module Treaps
 
 import Base: show, isempty, add!, minimum, maximum
 
-export Treap, show, isempty, add!, delete!, minimum, maximum, left, right, key
+export Treap, show, isempty, add!, remove!, minimum, maximum, left, right, key
 
 type Treap{K}
 	priority::Float64
@@ -13,7 +13,7 @@ type Treap{K}
 	Treap(key) = new(rand(), key, Treap{K}(), Treap{K}())
 	Treap() = new(Inf)
 end
-show(io::IO, t::Treap) = show(io, "key: $(t.key), priority: $(t.priority)")
+show(io::IO, t::Treap) = show(io, "Key: $(t.key), Priority: $(t.priority)")
 isempty(t::Treap) = t.priority == Inf
 
 key(t::Treap) = t.key
@@ -40,8 +40,8 @@ function add!{K}(t::Treap{K}, key::K)
 end
 
 function merge!{K}(left::Treap{K}, right::Treap{K})
-	isempty(t.left)  && return right
-	isempty(t.right) && return left
+	isempty(left)  && return right
+	isempty(right) && return left
 	if left.priority < right.priority
 		result = left
 		result.right = merge!(left.right, right)
@@ -79,49 +79,108 @@ end
 function rotate_right!(root::Treap)
 	@assert !isempty(root)
 	newroot = root.left
-	root.left = newroot.right
-	newroot.right = root
+	root.left, newroot.right = newroot.right, root
 	newroot
 end
 
 function rotate_left!(root::Treap)
 	@assert !isempty(root)
 	newroot = root.right
-	root.right = newroot.left
-	newroot.left = root
+	root.right, newroot.left = newroot.left, root
 	newroot
 end
 
 end # module
 
 using Treaps
-using SSS
+import LowDimNearestNeighbors: shuffless, shuffmore, nearest, Result, sqdist, sqdist_to_quadtree_box
 
-immutable Vec2{T}
+# Nearest-neighbor search on a binary search tree with unique
+# elements in shuffle order. Assumes the tree implements key,
+# left, right, isempty, minimum, and maximum.
+# The code follows the shape of the array version.
+function nearest{P, Q}(t::Treap{P}, q::Q, R::Result{P, Q}, ε::Float64)
+	isempty(t) && return R
+
+	min, cur, max = minimum(t), key(t), maximum(t)
+
+	r_sq = sqdist(cur, q)
+	r_sq < R.r_sq && (R = Result{P, Q}(cur, r_sq, q))
+
+	if min == max || sqdist_to_quadtree_box(q, min, max) * (1.0 + ε)^2 >= R.r_sq
+		return R
+	end
+
+	if shuffless(q, cur)
+		R = nearest(left(t), q, R, ε)
+		shuffmore(R.bbox_hi, cur) && (R = nearest(right(t), q, R, ε))
+	else
+		R = nearest(right(t), q, R, ε)
+		shuffless(R.bbox_lo, cur) && (R = nearest(left(t), q, R, ε))
+	end
+
+	R
+end
+
+function nearest{P, Q}(t::Treap{P}, q::Q, ε=0.0)
+	@assert !isempty(t) "Searching for the nearest in an empty treap"
+	nearest(t, q, Result{P, Q}(key(t)), ε).point
+end
+
+function test_treap()
+	n = 10000
+	a = shuffle([i for i in 1:n])
+	t = Treap{Int}()
+
+	for i in 1:n
+		t = add!(t, a[i])
+	end
+	sort!(a)
+
+	@assert !isempty(t)
+	@assert maximum(t) == maximum(a)
+	@assert minimum(t) == minimum(a)
+
+	for v in a
+		t = remove!(t, v)
+	end
+
+	@assert isempty(t)
+
+	println("Treap: Test succeeded.")
+
+end
+
+
+test_treap()
+
+
+immutable Vec3{T}
 	x::T
 	y::T
+	z::T
 end
-Base.getindex(v::Vec2, n::Int) = n == 1 ? v.x : n == 2 ? v.y : throw("Vec2 indexing error.")
-Base.length(v::Vec2) = 2
-Base.rand{T}(::Type{Vec2{T}}) = Vec2(rand(T), rand(T))
-<(a::Vec2, b::Vec2) = shuffless(a, b)
+Base.getindex(v::Vec3, n::Int) = n == 1 ? v.x : n == 2 ? v.y : n == 3 ? v.z : throw("Vec3 indexing error.")
+Base.length(v::Vec3) = 3
+Base.rand{T}(::Type{Vec3{T}}) = Vec3(rand(T), rand(T), rand(T))
+<(a::Vec3, b::Vec3) = shuffless(a, b)
 
 function benchmark_treap(numelements, numqueries)
 	for i in 1:10
-		arr = unique([rand(Vec2{Uint8}) for i in 1:numelements])
-		t = Treap{Vec2{Uint8}}()
+		arr = unique([rand(Vec3{Uint8}) for i in 1:numelements])
+		t = Treap{Vec3{Uint8}}()
 		for v in arr
 			t = add!(t, v)
 		end
 
-		queries = [rand(Vec2{Uint8}) for i in 1:numqueries]
+		queries = [rand(Vec3{Uint8}) for i in 1:numqueries]
 
 		@time for q in queries
 			result = nearest(t, q)
-			# result_sqdist = SSS.sqdist(q, result)
+			# result_sqdist = LowDimNearestNeighbors.sqdist(q, result)
 
 			# correct_result = nearest(arr, q)
-			# correct_sqdist = SSS.sqdist(q, correct_result)
+			# correct_sqdist = LowDimNearestNeighbors.sqdist(q, correct_result)
 
 			# if result_sqdist != correct_sqdist
 			# 	result_dist = sqrt(result_sqdist)
