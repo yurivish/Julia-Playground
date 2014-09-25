@@ -199,7 +199,7 @@ function loadimage(imgpath::String)
     w, h = size_spatial(im)
     colors = Pixel[]
     for i in 1:w, j in 1:h
-        push!(colors, Pixel(im[i, j, 1], im[i, j, 2], im[i, j, 3]))
+        push!(colors, Pixel(uint8(im[i, j].r * 255), uint8(im[i, j].g * 255), uint8(im[i, j].b * 255)))
     end
     colors
 end
